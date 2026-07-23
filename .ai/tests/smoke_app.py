@@ -17,6 +17,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         pass  # suppress logging to console
 
+    def translate_path(self, path):
+        # Redirect absolute static paths to the shared asset directory
+        res = super().translate_path(path)
+        if path.startswith("/static/"):
+            # The test script is located in assets/official/free_web_tools/tools/<tool>/.ai/tests/smoke_app.py
+            # So the root of free_web_tools is 5 levels up (parents[4])
+            base_dir = Path(__file__).resolve().parents[4]
+            res = str(base_dir / path.lstrip("/"))
+        print(f"[TEST SERVER] translate_path: {path} -> {res} (exists: {Path(res).exists()})")
+        return res
+
 def start_server():
     handler = Handler
     # Use TCPServer with allow_reuse_address to avoid port binding locks
