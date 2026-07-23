@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,147 +7,431 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Outfit', sans-serif;
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            neonBlue: '#00f0ff',
+            neonGreen: '#39ff14',
+            neonPurple: '#d300ff',
+            neonRed: '#ff073a',
+            slateDark: '#0b0f19'
+          }
+        }
+      }
     }
-    .glass {
-      background: rgba(30, 41, 59, 0.45);
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-card: rgba(15, 23, 42, 0.45);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-glow: rgba(0, 240, 255, 0.2);
+      --accent-color: #00f0ff;
+      --accent-glow-intensity: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
+    }
+    
+    .theme-light {
+      --bg-primary: #f8fafc;
+      --bg-card: rgba(255, 255, 255, 0.65);
+      --border-color: rgba(15, 23, 42, 0.08);
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      --accent-color: #3b82f6;
+      --accent-glow-intensity: 0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .theme-neon {
+      --bg-primary: #020205;
+      --bg-card: rgba(0, 0, 0, 0.7);
+      --border-color: rgba(211, 0, 255, 0.25);
+      --text-main: #00f0ff;
+      --text-muted: #8b5cf6;
+      --accent-glow: rgba(211, 0, 255, 0.45);
+      --accent-color: #d300ff;
+      --accent-glow-intensity: 0 0 10px rgba(211, 0, 255, 0.5), 0 0 20px rgba(211, 0, 255, 0.3);
+    }
+    
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+    }
+    
+    .font-mono-custom {
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .glass-panel {
+      background: var(--bg-card);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
     }
-    .neon-glow-teal {
-      text-shadow: 0 0 10px rgba(20, 184, 166, 0.5), 0 0 20px rgba(20, 184, 166, 0.3);
+    
+    .neon-shadow {
+      box-shadow: 0 0 20px var(--accent-glow);
     }
+
+    [v-cloak] { display: none; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden relative">
-  <!-- Background glow -->
-  <div class="absolute w-[500px] h-[500px] rounded-full bg-teal-500/10 blur-[120px] top-[-10%] left-[-10%] pointer-events-none"></div>
-  <div class="absolute w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[130px] bottom-[-20%] right-[-10%] pointer-events-none"></div>
+<body class="min-h-screen relative overflow-hidden flex flex-col justify-between" id="theme-root">
 
-  <div id="app" v-cloak class="w-full max-w-lg z-10">
-    <!-- Header with Back link and Language Toggle -->
-    <div class="mb-4 flex justify-between items-center px-2">
-      <a href="/" class="text-xs font-semibold text-slate-400 hover:text-teal-400 flex items-center gap-1 transition">
-        &larr; [[ t('back_to_portal') ]]
-      </a>
-      <div class="flex items-center gap-4">
-        <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">[[ t('tool_name') ]]</span>
-        <button @click="toggleLanguage"
-                class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-800/50 border border-slate-700/50 text-xs font-bold text-slate-300 hover:text-teal-400 hover:border-teal-500/50 transition shadow-sm"
-                title="Toggle Language">
-          [[ currentLang === 'en' ? 'EN' : 'JA' ]]
-        </button>
-      </div>
+  <div id="app" v-cloak class="min-h-screen w-full flex flex-col justify-between relative z-10">
+    
+    <!-- Dynamic Background Image Layer -->
+    <div class="absolute inset-0 pointer-events-none transition-all duration-500 z-0 bg-cover bg-center"
+         :style="{ 
+           backgroundImage: settings.bgUrl ? 'url(' + settings.bgUrl + ')' : 'none',
+           opacity: settings.bgOpacity,
+           filter: 'blur(' + settings.bgBlur + 'px)'
+         }">
     </div>
 
-    <div class="glass rounded-3xl p-6 sm:p-10 shadow-2xl flex flex-col relative overflow-hidden">
-      <!-- Decor header -->
-      <div class="w-full flex justify-between items-center mb-8 text-xs tracking-widest text-slate-500 font-semibold uppercase">
-        <span>[[ t('generator') ]]</span>
-        <span>[[ t('instant') ]]</span>
+    <!-- Header Navigation -->
+    <header class="relative z-10 w-full px-6 py-4 flex justify-between items-center glass-panel border-b">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-cyan-500/20">
+          <i class="fa-solid fa-qrcode"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-black tracking-wider uppercase bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            [[ t('tool_title') ]]
+          </h1>
+          <span class="text-[9px] font-bold text-slate-500 font-mono tracking-widest">// STANDALONE TOOL</span>
+        </div>
       </div>
-
-      <!-- Input Field -->
-      <div class="flex flex-col gap-2 mb-8">
-        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">[[ t('input_label') ]]</label>
-        <textarea v-model="inputText" @input="debouncedGenerate"
-                  rows="3"
-                  :placeholder="t('input_placeholder')"
-                  class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-teal-500/50 resize-none transition text-sm sm:text-base"></textarea>
+      
+      <!-- Top Action Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Fullscreen Switcher -->
+        <button @click="toggleFullscreen" 
+                class="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-700/50 bg-slate-900/60 text-slate-400 hover:text-white hover:border-cyan-500/40 transition duration-300"
+                :title="isFullscreen ? t('fullscreen_exit') : t('fullscreen_enter')">
+          <i :class="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
+        </button>
+        
+        <!-- Settings Gear Toggle Button -->
+        <button @click="isSettingsOpen = true" 
+                class="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-700/50 bg-slate-900/60 text-slate-400 hover:text-white hover:border-cyan-500/40 transition duration-300">
+          <i class="fa-solid fa-gear animate-spin-slow"></i>
+        </button>
       </div>
+    </header>
 
-      <!-- Generated QR Code Display -->
-      <div class="flex flex-col items-center justify-center py-4 bg-slate-900/30 rounded-2xl border border-slate-900/50">
-        <div class="relative p-4 bg-white rounded-2xl shadow-xl flex items-center justify-center min-w-[200px] min-h-[200px]"
-             :class="{ 'opacity-30': !inputText }">
-          <div id="qrcode-container"></div>
-          <div v-if="!inputText" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs text-center p-4">
-            [[ t('waiting_for_input') ]]
+    <!-- Main Workspace Container -->
+    <main class="relative z-10 w-full max-w-4xl mx-auto flex-grow flex flex-col items-center justify-center px-6 py-12">
+      <!-- QR Code Body -->
+      <div class="w-full glass-panel p-6 sm:p-10 rounded-3xl neon-shadow flex flex-col relative overflow-hidden max-w-lg">
+        <!-- Decor Header -->
+        <div class="w-full flex justify-between items-center mb-8 text-[10px] tracking-widest text-slate-500 font-semibold uppercase">
+          <span>[[ t('generator') ]]</span>
+          <span>[[ t('instant') ]]</span>
+        </div>
+
+        <!-- Input Field -->
+        <div class="flex flex-col gap-2 mb-8 w-full">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">[[ t('input_label') ]]</label>
+          <textarea v-model="inputText" @input="debouncedGenerate"
+                    rows="3"
+                    :placeholder="t('input_placeholder')"
+                    class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[var(--accent-color)] resize-none transition text-sm sm:text-base"></textarea>
+        </div>
+
+        <!-- Generated QR Code Display -->
+        <div class="flex flex-col items-center justify-center py-4 bg-slate-900/30 rounded-2xl border border-slate-900/50 w-full">
+          <div class="relative p-4 bg-white rounded-2xl shadow-xl flex items-center justify-center min-w-[200px] min-h-[200px]"
+               :class="{ 'opacity-30': !inputText }">
+            <div id="qrcode-container"></div>
+            <div v-if="!inputText" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs text-center p-4">
+              [[ t('waiting_for_input') ]]
+            </div>
+          </div>
+
+          <div v-if="inputText" class="mt-6 flex gap-4 w-full px-6 max-w-sm justify-center">
+            <button @click="downloadQR"
+                    class="flex-1 text-slate-950 font-extrabold py-3 px-4 rounded-xl hover:brightness-110 active:scale-95 transition text-sm flex justify-center items-center gap-1"
+                    :style="{ background: 'linear-gradient(135deg, var(--accent-color), #8b5cf6)', color: settings.theme === 'light' ? '#ffffff' : '#0b0f19', boxShadow: 'var(--accent-glow-intensity)' }">
+              [[ t('download') ]]
+            </button>
+            <button @click="clear"
+                    class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 py-3 px-4 rounded-xl active:scale-95 transition text-sm">
+              [[ t('clear') ]]
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="relative z-10 w-full px-6 py-4 flex justify-between items-center glass-panel border-t text-xs" style="color: var(--text-muted);">
+      <div>&copy; 2026 Free Web Tools Project.</div>
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-mono uppercase text-[10px]">Active Node</span>
+      </div>
+    </footer>
+
+    <!-- Customizer Settings Overlay Dialog -->
+    <div v-if="isSettingsOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-all duration-300">
+      <div class="w-full max-w-md glass-panel rounded-3xl overflow-hidden shadow-2xl relative">
+        <!-- Dialog Header -->
+        <div class="px-6 py-4 border-b border-slate-800/50 flex justify-between items-center bg-slate-900/40">
+          <div class="flex items-center gap-2 text-cyan-400">
+            <i class="fa-solid fa-sliders"></i>
+            <h3 class="font-bold">[[ t('settings_title') ]]</h3>
+          </div>
+          <button @click="closeSettings" class="text-slate-500 hover:text-white transition duration-200">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+        
+        <!-- Dialog Scrollable Content -->
+        <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          <!-- 1. Language Toggle -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">[[ t('lang_label') ]]</label>
+            <div class="grid grid-cols-2 gap-2 bg-slate-950/50 p-1 rounded-xl border border-slate-800">
+              <button @click="setLang('en')" 
+                      :class="settings.lang === 'en' ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'text-slate-400 hover:text-white'"
+                      class="py-2 px-3 rounded-lg text-sm transition duration-200">
+                English
+              </button>
+              <button @click="setLang('ja')" 
+                      :class="settings.lang === 'ja' ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'text-slate-400 hover:text-white'"
+                      class="py-2 px-3 rounded-lg text-sm transition duration-200">
+                日本語
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Theme Selection -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">[[ t('theme_label') ]]</label>
+            <div class="grid grid-cols-3 gap-2 bg-slate-950/50 p-1 rounded-xl border border-slate-800">
+              <button @click="setTheme('dark')" 
+                      :class="settings.theme === 'dark' ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'text-slate-400 hover:text-white'"
+                      class="py-2 px-1 rounded-lg text-xs transition duration-200">
+                [[ t('theme_dark') ]]
+              </button>
+              <button @click="setTheme('light')" 
+                      :class="settings.theme === 'light' ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'text-slate-400 hover:text-white'"
+                      class="py-2 px-1 rounded-lg text-xs transition duration-200">
+                [[ t('theme_light') ]]
+              </button>
+              <button @click="setTheme('neon')" 
+                      :class="settings.theme === 'neon' ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'text-slate-400 hover:text-white'"
+                      class="py-2 px-1 rounded-lg text-xs transition duration-200">
+                [[ t('theme_neon') ]]
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Background Customizer -->
+          <div class="space-y-4 pt-2 border-t border-slate-800/40">
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-wider text-slate-400">[[ t('bg_url_label') ]]</label>
+              <input type="text" v-model="settings.bgUrl" placeholder="https://example.com/image.jpg"
+                     class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-400">[[ t('bg_opacity_label') ]]</label>
+                <span class="text-xs font-mono text-cyan-400">[[ Math.round(settings.bgOpacity * 100) ]]%</span>
+              </div>
+              <input type="range" min="0" max="0.8" step="0.05" v-model.number="settings.bgOpacity"
+                     class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-400">[[ t('bg_blur_label') ]]</label>
+                <span class="text-xs font-mono text-cyan-400">[[ settings.bgBlur ]]px</span>
+              </div>
+              <input type="range" min="0" max="24" step="1" v-model.number="settings.bgBlur"
+                     class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+            </div>
           </div>
         </div>
 
-        <div v-if="inputText" class="mt-6 flex gap-4 w-full px-6 max-w-sm justify-center">
-          <button @click="downloadQR"
-                  class="flex-1 bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-extrabold py-3 px-4 rounded-xl shadow-[0_0_15px_rgba(20,184,166,0.2)] hover:brightness-110 active:scale-95 transition text-sm flex justify-center items-center gap-1">
-            [[ t('download') ]]
+        <!-- Dialog Footer Action Controls -->
+        <div class="px-6 py-4 border-t border-slate-800/50 flex justify-between bg-slate-900/20">
+          <button @click="resetToDefault" class="text-xs text-rose-400 font-semibold hover:text-rose-300 transition duration-200">
+            <i class="fa-solid fa-rotate-left mr-1"></i> [[ t('reset') ]]
           </button>
-          <button @click="clear"
-                  class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 py-3 px-4 rounded-xl active:scale-95 transition text-sm">
-            [[ t('clear') ]]
-          </button>
+          <div class="flex gap-2">
+            <button @click="closeSettings" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold hover:bg-cyan-400 transition duration-200">
+              [[ t('save_settings') ]]
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
+
   </div>
 
   <script>
     (() => {
-      const { createApp, ref, onMounted, nextTick } = Vue;
+      const { createApp, ref, reactive, computed, onMounted, nextTick, watch } = Vue;
+
+      const DEFAULT_SETTINGS = {
+        lang: 'en',
+        theme: 'dark',
+        bgUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop',
+        bgOpacity: 0.15,
+        bgBlur: 8,
+        custom: {}
+      };
 
       createApp({
         compilerOptions: { delimiters: ['[[', ']]'] },
         setup() {
-          const inputText = ref('https://free-web-tools.example.com');
+          const isSettingsOpen = ref(false);
+          const isFullscreen = ref(false);
           const translations = ref({});
-          const currentLang = ref('en');
+          const settings = reactive({ ...DEFAULT_SETTINGS });
 
+          // QR specific variables
+          const inputText = ref('https://free-web-tools.example.com');
           let qrcodeInstance = null;
           let debounceTimer = null;
 
-          const t = (key) => {
-            if (!translations.value[currentLang.value]) return key;
-            return translations.value[currentLang.value][key] || key;
-          };
-
-          const toggleLanguage = () => {
-            currentLang.value = currentLang.value === 'en' ? 'ja' : 'en';
-            localStorage.setItem('preferred-lang', currentLang.value);
-            document.documentElement.lang = currentLang.value;
-          };
-
-          const initI18n = async () => {
+          const loadTranslations = async () => {
             try {
               const res = await fetch('./i18n.json');
-              const data = await res.json();
-              translations.value = data;
-
-              const savedLang = localStorage.getItem('preferred-lang');
-              if (savedLang && (savedLang === 'en' || savedLang === 'ja')) {
-                currentLang.value = savedLang;
-              } else {
-                const navLang = navigator.language || navigator.userLanguage;
-                currentLang.value = navLang.startsWith('ja') ? 'ja' : 'en';
-              }
-              document.documentElement.lang = currentLang.value;
-            } catch (err) {
-              console.error('Failed to load translations', err);
+              translations.value = await res.json();
+              updateDocumentMetadata();
+            } catch (e) {
+              console.error("Failed to load local translations", e);
             }
           };
 
+          const t = (key) => {
+            const currentLang = settings.lang;
+            return translations.value[currentLang]?.[key] || translations.value['en']?.[key] || key;
+          };
+
+          const updateDocumentMetadata = () => {
+            document.title = t('page_title');
+            document.documentElement.lang = settings.lang;
+          };
+
+          const applyTheme = (themeName) => {
+            const root = document.getElementById('theme-root');
+            if (!root) return;
+            
+            root.className = 'min-h-screen relative overflow-hidden flex flex-col justify-between';
+            
+            if (themeName === 'light') {
+              root.classList.add('theme-light');
+              root.classList.remove('dark');
+            } else if (themeName === 'neon') {
+              root.classList.add('theme-neon');
+              root.classList.add('dark');
+            } else {
+              root.classList.add('dark');
+            }
+          };
+
+          const setTheme = (themeName) => {
+            settings.theme = themeName;
+            applyTheme(themeName);
+            saveSettingsToStorage();
+          };
+
+          const setLang = (langCode) => {
+            settings.lang = langCode;
+            saveSettingsToStorage();
+            updateDocumentMetadata();
+          };
+
+          const loadSettingsFromStorage = () => {
+            const stored = localStorage.getItem('tool-settings');
+            if (stored) {
+              try {
+                const parsed = JSON.parse(stored);
+                const customMerged = { ...DEFAULT_SETTINGS.custom, ...parsed.custom };
+                Object.assign(settings, parsed);
+                settings.custom = reactive(customMerged);
+              } catch (e) {
+                console.error("Failed to parse stored settings", e);
+              }
+            } else {
+              const browserLang = navigator.language || '';
+              settings.lang = browserLang.startsWith('ja') ? 'ja' : 'en';
+            }
+            applyTheme(settings.theme);
+          };
+
+          const saveSettingsToStorage = () => {
+            localStorage.setItem('tool-settings', JSON.stringify(settings));
+          };
+
+          const closeSettings = () => {
+            isSettingsOpen.value = false;
+            saveSettingsToStorage();
+          };
+
+          const resetToDefault = () => {
+            Object.assign(settings, DEFAULT_SETTINGS);
+            const browserLang = navigator.language || '';
+            settings.lang = browserLang.startsWith('ja') ? 'ja' : 'en';
+            applyTheme(settings.theme);
+            saveSettingsToStorage();
+            updateDocumentMetadata();
+          };
+
+          const toggleFullscreen = () => {
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().then(() => {
+                isFullscreen.value = true;
+              }).catch((err) => {
+                console.error(`Error attempting to enable fullscreen: ${err.message}`);
+              });
+            } else {
+              document.exitFullscreen().then(() => {
+                isFullscreen.value = false;
+              });
+            }
+          };
+
+          document.addEventListener('fullscreenchange', () => {
+            isFullscreen.value = !!document.fullscreenElement;
+          });
+
+          // QR Code specific functions
           const generateQR = () => {
             const container = document.getElementById('qrcode-container');
             if (!container) return;
 
-            // Clear previous QR
             container.innerHTML = '';
 
             if (!inputText.value.trim()) {
               return;
             }
 
-            // Generate new QR Code
             try {
               qrcodeInstance = new QRCode(container, {
                 text: inputText.value,
                 width: 180,
                 height: 180,
-                colorDark: '#0f172a', // slate-900 for high quality scanning
+                colorDark: '#0f172a',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H
               });
@@ -173,7 +457,6 @@
 
             const img = container.querySelector('img');
             if (!img || !img.src) {
-              // Try canvas fallback
               const canvas = container.querySelector('canvas');
               if (canvas) {
                 const url = canvas.toDataURL('image/png');
@@ -193,21 +476,32 @@
             document.body.removeChild(a);
           };
 
-          onMounted(async () => {
-            await initI18n();
+          watch(() => settings.lang, () => {
+            updateDocumentMetadata();
+          });
+
+          onMounted(() => {
+            loadTranslations();
+            loadSettingsFromStorage();
             nextTick(() => {
               generateQR();
             });
           });
 
           return {
+            isSettingsOpen,
+            isFullscreen,
+            settings,
+            t,
+            setTheme,
+            setLang,
+            closeSettings,
+            resetToDefault,
+            toggleFullscreen,
             inputText,
             debouncedGenerate,
             clear,
-            downloadQR,
-            t,
-            currentLang,
-            toggleLanguage
+            downloadQR
           };
         }
       }).mount('#app');
