@@ -31,27 +31,34 @@
   <div class="absolute w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[130px] bottom-[-20%] right-[-10%] pointer-events-none"></div>
 
   <div id="app" v-cloak class="w-full max-w-lg z-10">
-    <!-- Back to portal link -->
+    <!-- Header with Back link and Language Toggle -->
     <div class="mb-4 flex justify-between items-center px-2">
       <a href="/" class="text-xs font-semibold text-slate-400 hover:text-teal-400 flex items-center gap-1 transition">
-        &larr; ポータルに戻る
+        &larr; [[ t('back_to_portal') ]]
       </a>
-      <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Tool // QR Code</span>
+      <div class="flex items-center gap-4">
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">[[ t('tool_name') ]]</span>
+        <button @click="toggleLanguage"
+                class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-800/50 border border-slate-700/50 text-xs font-bold text-slate-300 hover:text-teal-400 hover:border-teal-500/50 transition shadow-sm"
+                title="Toggle Language">
+          [[ currentLang === 'en' ? 'EN' : 'JA' ]]
+        </button>
+      </div>
     </div>
 
     <div class="glass rounded-3xl p-6 sm:p-10 shadow-2xl flex flex-col relative overflow-hidden">
       <!-- Decor header -->
       <div class="w-full flex justify-between items-center mb-8 text-xs tracking-widest text-slate-500 font-semibold uppercase">
-        <span>QR Code Generator</span>
-        <span>Instant</span>
+        <span>[[ t('generator') ]]</span>
+        <span>[[ t('instant') ]]</span>
       </div>
 
       <!-- Input Field -->
       <div class="flex flex-col gap-2 mb-8">
-        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">テキスト または URL</label>
+        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">[[ t('input_label') ]]</label>
         <textarea v-model="inputText" @input="debouncedGenerate"
                   rows="3"
-                  placeholder="ここにテキストやURLを入力すると、自動的にQRコードが生成されます..."
+                  :placeholder="t('input_placeholder')"
                   class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-teal-500/50 resize-none transition text-sm sm:text-base"></textarea>
       </div>
 
@@ -61,18 +68,18 @@
              :class="{ 'opacity-30': !inputText }">
           <div id="qrcode-container"></div>
           <div v-if="!inputText" class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs text-center p-4">
-            入力待ち...
+            [[ t('waiting_for_input') ]]
           </div>
         </div>
 
         <div v-if="inputText" class="mt-6 flex gap-4 w-full px-6 max-w-sm justify-center">
           <button @click="downloadQR"
                   class="flex-1 bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-extrabold py-3 px-4 rounded-xl shadow-[0_0_15px_rgba(20,184,166,0.2)] hover:brightness-110 active:scale-95 transition text-sm flex justify-center items-center gap-1">
-            ダウンロード
+            [[ t('download') ]]
           </button>
           <button @click="clear"
                   class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 py-3 px-4 rounded-xl active:scale-95 transition text-sm">
-            クリア
+            [[ t('clear') ]]
           </button>
         </div>
       </div>
@@ -87,8 +94,41 @@
         compilerOptions: { delimiters: ['[[', ']]'] },
         setup() {
           const inputText = ref('https://free-web-tools.example.com');
+          const translations = ref({});
+          const currentLang = ref('en');
+
           let qrcodeInstance = null;
           let debounceTimer = null;
+
+          const t = (key) => {
+            if (!translations.value[currentLang.value]) return key;
+            return translations.value[currentLang.value][key] || key;
+          };
+
+          const toggleLanguage = () => {
+            currentLang.value = currentLang.value === 'en' ? 'ja' : 'en';
+            localStorage.setItem('preferred-lang', currentLang.value);
+            document.documentElement.lang = currentLang.value;
+          };
+
+          const initI18n = async () => {
+            try {
+              const res = await fetch('./i18n.json');
+              const data = await res.json();
+              translations.value = data;
+
+              const savedLang = localStorage.getItem('preferred-lang');
+              if (savedLang && (savedLang === 'en' || savedLang === 'ja')) {
+                currentLang.value = savedLang;
+              } else {
+                const navLang = navigator.language || navigator.userLanguage;
+                currentLang.value = navLang.startsWith('ja') ? 'ja' : 'en';
+              }
+              document.documentElement.lang = currentLang.value;
+            } catch (err) {
+              console.error('Failed to load translations', err);
+            }
+          };
 
           const generateQR = () => {
             const container = document.getElementById('qrcode-container');
@@ -153,7 +193,8 @@
             document.body.removeChild(a);
           };
 
-          onMounted(() => {
+          onMounted(async () => {
+            await initI18n();
             nextTick(() => {
               generateQR();
             });
@@ -163,7 +204,10 @@
             inputText,
             debouncedGenerate,
             clear,
-            downloadQR
+            downloadQR,
+            t,
+            currentLang,
+            toggleLanguage
           };
         }
       }).mount('#app');

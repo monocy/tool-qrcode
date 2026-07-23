@@ -1,0 +1,24 @@
+{
+  "en": {
+    "back_to_portal": "Back to Portal",
+    "tool_name": "Tool // QR Code",
+    "generator": "QR Code Generator",
+    "instant": "Instant",
+    "input_label": "Text or URL",
+    "input_placeholder": "Enter text or URL here to automatically generate a QR code...",
+    "waiting_for_input": "Waiting for input...",
+    "download": "Download",
+    "clear": "Clear"
+  },
+  "ja": {
+    "back_to_portal": "ポータルに戻る",
+    "tool_name": "Tool // QR Code",
+    "generator": "QR Code Generator",
+    "instant": "Instant",
+    "input_label": "テキスト または URL",
+    "input_placeholder": "ここにテキストやURLを入力すると、自動的にQRコードが生成されます...",
+    "waiting_for_input": "入力待ち...",
+    "download": "ダウンロード",
+    "clear": "クリア"
+  }
+}
