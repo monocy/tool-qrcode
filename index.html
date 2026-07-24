@@ -27,7 +27,8 @@
       const commonScripts = [
         'static/js/portal_common.js',
         'static/js/settings_modal.js',
-        'static/js/background_modal.js'
+        'static/js/background_modal.js',
+        'static/js/portal_components.js'
       ];
 
       function loadScripts(index) {
@@ -85,35 +86,14 @@
     </div>
 
     <!-- Header Navigation -->
-    <header class="relative z-10 w-full px-6 py-4 flex justify-between items-center glass-panel border-b">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-[var(--text-main)] text-xl font-bold shadow-md shadow-cyan-500/20">
-          <i class="fa-solid fa-qrcode"></i>
-        </div>
-        <div>
-          <h1 class="text-lg font-black tracking-wider uppercase bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            [[ t('tool_title') ]]
-          </h1>
-          <span class="text-[9px] font-bold text-[var(--text-muted)] font-mono tracking-widest">// STANDALONE TOOL</span>
-        </div>
-      </div>
-      
-      <!-- Top Action Controls -->
-      <div class="flex items-center gap-3">
-        <!-- Fullscreen Switcher -->
-        <button @click="toggleFullscreen" 
-                class="w-10 h-10 rounded-xl flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-cyan-500/40 transition duration-300"
-                :title="isFullscreen ? t('fullscreen_exit') : t('fullscreen_enter')">
-          <i :class="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
-        </button>
-        
-        <!-- Settings Gear Toggle Button -->
-        <button @click="isSettingsOpen = true" 
-                class="w-10 h-10 rounded-xl flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-cyan-500/40 transition duration-300">
-          <i class="fa-solid fa-gear animate-spin-slow"></i>
-        </button>
-      </div>
-    </header>
+    <portal-header 
+      :settings="settings" 
+      :translations="translations" 
+      :is-fullscreen="isFullscreen" 
+      @toggle-fullscreen="toggleFullscreen" 
+      @toggle-theme="toggleTheme" 
+      @open-settings="isSettingsOpen = true"
+    ></portal-header>
 
     <!-- Main Workspace Container -->
     <main class="relative z-10 w-full max-w-4xl mx-auto flex-grow flex flex-col items-center justify-center px-6 py-12">
@@ -160,13 +140,14 @@
     </main>
 
     <!-- Footer Controls -->
-    <footer class="relative z-10 w-full px-6 py-4 flex justify-between items-center glass-panel border-t text-xs" style="color: var(--text-muted);">
-      <div>&copy; 2026 Free Web Tools Project.</div>
-      <div class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="font-mono uppercase text-[10px]">Active Node</span>
-      </div>
-    </footer>
+    <portal-footer></portal-footer>
+
+    <!-- Floating Fullscreen Button -->
+    <portal-controls
+      :settings="settings"
+      :translations="translations"
+      @toggle-fullscreen="toggleFullscreen"
+    ></portal-controls>
 
     <!-- Settings Modal Component -->
     <!-- Settings Modal Component -->
@@ -202,11 +183,15 @@
       };
 
       createApp({
-        components: { SettingsModal, BackgroundModal },
+        components: { SettingsModal, BackgroundModal,
+          PortalHeader,
+          PortalFooter,
+          PortalControls
+        },
         compilerOptions: { delimiters: ['[[', ']]'] },
         setup() {
           const portal = usePortalCommon((typeof DEFAULT_SETTINGS !== 'undefined' && DEFAULT_SETTINGS.custom) || {});
-          const { settings, showSettings: isSettingsOpen, isBgModalOpen, isFullscreen, translations, t, toggleFullscreen } = portal;
+          const { settings, showSettings: isSettingsOpen, isBgModalOpen, isFullscreen, translations, t, toggleFullscreen, toggleTheme } = portal;
 
           // QR specific variables
           const inputText = ref('https://free-web-tools.example.com');
@@ -321,7 +306,8 @@
             inputText,
             debouncedGenerate,
             clear,
-            downloadQR
+            downloadQR,
+            toggleTheme
           };
         }
       }).mount('#app');
