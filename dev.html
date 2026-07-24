@@ -40,13 +40,13 @@
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-  <div id="app" v-cloak class="w-full max-w-2xl">
+  <div id="app" v-cloak class="w-full max-w-2xl flex flex-col items-center">
     <!-- Dev Mode Notice -->
-    <div class="mb-4 text-center text-xs text-cyan-400 font-mono tracking-wider">
+    <div class="mb-4 text-center text-xs text-cyan-400 font-mono tracking-wider w-full">
       [ STANDALONE DEV MODE ]
     </div>
     
-    <tool-workspace v-if="translations" :settings="settings" :translations="translations"></tool-workspace>
+    <tool-workspace v-if="translations" :settings="settings" :translations="translations" class="w-full"></tool-workspace>
     <div v-else class="text-center py-8">Loading translations...</div>
   </div>
 
