@@ -48,6 +48,17 @@ def main():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         
+        def handle_route(route):
+            url = route.request.url
+            local_path = url.replace("https://stone.parallel.jp/free-web-tools/", "")
+            base_dir = Path(__file__).resolve().parents[4]
+            target_file = base_dir / local_path
+            if target_file.exists():
+                route.fulfill(path=str(target_file))
+            else:
+                route.continue_()
+        page.route("https://stone.parallel.jp/free-web-tools/static/**", handle_route)
+        
         console_errors = []
         page_errors = []
         page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
