@@ -194,8 +194,10 @@
           let qrcodeInstance = null;
           let debounceTimer = null;
 
+          const originalTitle = document.title;
           const updateDocumentMetadata = () => {
-            document.title = t('page_title');
+            const pageTitle = t('page_title');
+            document.title = (pageTitle === 'page_title' || !pageTitle) ? originalTitle : pageTitle;
             document.documentElement.lang = settings.lang;
           };
 
