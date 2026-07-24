@@ -95,6 +95,14 @@ def main():
             issues.append(f"Execution Error: {e}")
             passed = False
         finally:
+            if passed:
+                try:
+                    screenshots_dir = Path(__file__).resolve().parents[1] / "screenshots"
+                    screenshots_dir.mkdir(parents=True, exist_ok=True)
+                    screenshot_path = screenshots_dir / "smoke_test_result.jpg"
+                    page.screenshot(path=str(screenshot_path), type="jpeg", quality=85)
+                except Exception as se:
+                    print(f"Warning: Failed to save smoke test screenshot: {se}")
             browser.close()
             
     if passed:
