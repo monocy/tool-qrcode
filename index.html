@@ -178,24 +178,13 @@
         components: { SettingsModal, BackgroundModal },
         compilerOptions: { delimiters: ['[[', ']]'] },
         setup() {
-          const translations = ref({});
-          const portal = usePortalCommon(translations, (typeof DEFAULT_SETTINGS !== 'undefined' && DEFAULT_SETTINGS.custom) || {});
-          const { settings, showSettings: isSettingsOpen, isBgModalOpen, isFullscreen, t, toggleFullscreen } = portal;
+          const portal = usePortalCommon((typeof DEFAULT_SETTINGS !== 'undefined' && DEFAULT_SETTINGS.custom) || {});
+          const { settings, showSettings: isSettingsOpen, isBgModalOpen, isFullscreen, translations, t, toggleFullscreen } = portal;
 
           // QR specific variables
           const inputText = ref('https://free-web-tools.example.com');
           let qrcodeInstance = null;
           let debounceTimer = null;
-
-          const loadTranslations = async () => {
-            try {
-              const res = await fetch('./i18n.json');
-              translations.value = await res.json();
-              updateDocumentMetadata();
-            } catch (e) {
-              console.error("Failed to load local translations", e);
-            }
-          };
 
           const updateDocumentMetadata = () => {
             document.title = t('page_title');
@@ -279,13 +268,12 @@
             document.body.removeChild(a);
           };
 
-          watch(() => settings.lang, () => {
+          // Watch translations and lang changes to reactively update document details
+          watch([translations, () => settings.lang], () => {
             updateDocumentMetadata();
-          });
+          }, { deep: true, immediate: true });
 
           onMounted(() => {
-            loadTranslations();
-            
             nextTick(() => {
               generateQR();
             });
@@ -296,6 +284,7 @@
             isBgModalOpen,
             isFullscreen,
             settings,
+            translations,
             t,
             setTheme,
             setLang,
