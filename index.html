@@ -13,9 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
   
   <script type="module">
-  import SettingsModal from 'https://stone.parallel.jp/free-web-tools/static/js/settings_modal.js';
-  import BackgroundModal from 'https://stone.parallel.jp/free-web-tools/static/js/background_modal.js';
-  import { usePortalCommon } from 'https://stone.parallel.jp/free-web-tools/static/js/portal_common.js';
+  import SettingsModal from '../../static/js/settings_modal.js';
+  import BackgroundModal from '../../static/js/background_modal.js';
+  import { usePortalCommon } from '../../static/js/portal_common.js';
 
     tailwind.config = {
       darkMode: 'class',
@@ -33,7 +33,7 @@
     }
   </script>
   
-  <link rel="stylesheet" href="https://stone.parallel.jp/free-web-tools/static/css/portal.css">
+  <link rel="stylesheet" href="../../static/css/portal.css">
   <style>
 
     .font-mono-custom {
@@ -158,9 +158,9 @@
       @close="isBgModalOpen = false"
     ></background-modal>
 <script type="module">
-  import SettingsModal from 'https://stone.parallel.jp/free-web-tools/static/js/settings_modal.js';
-  import BackgroundModal from 'https://stone.parallel.jp/free-web-tools/static/js/background_modal.js';
-  import { usePortalCommon } from 'https://stone.parallel.jp/free-web-tools/static/js/portal_common.js';
+  import SettingsModal from '../../static/js/settings_modal.js';
+  import BackgroundModal from '../../static/js/background_modal.js';
+  import { usePortalCommon } from '../../static/js/portal_common.js';
 
     (() => {
       const { createApp, ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } = Vue;

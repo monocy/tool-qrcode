@@ -22,8 +22,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         res = super().translate_path(path)
         if path.startswith("/static/"):
             # The test script is located in assets/official/free_web_tools/tools/<tool>/.ai/tests/smoke_app.py
-            # So the root of free_web_tools is 5 levels up (parents[4])
-            base_dir = Path(__file__).resolve().parents[4]
+            # So the root of free_web_tools is 5 levels up (parents[7])
+            base_dir = Path(__file__).resolve().parents[7]
             res = str(base_dir / path.lstrip("/"))
         print(f"[TEST SERVER] translate_path: {path} -> {res} (exists: {Path(res).exists()})")
         return res
@@ -51,7 +51,7 @@ def main():
         def handle_route(route):
             url = route.request.url
             local_path = url.replace("https://stone.parallel.jp/free-web-tools/", "")
-            base_dir = Path(__file__).resolve().parents[4]
+            base_dir = Path(__file__).resolve().parents[7]
             target_file = base_dir / local_path
             if target_file.exists():
                 route.fulfill(path=str(target_file))
